@@ -6,10 +6,10 @@ import { formatISO } from "date-fns";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  id?: string | null;
+  projectId?: string | null;
 };
 
-const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
+const ModalNewTask = ({ isOpen, onClose, projectId = null }: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -20,32 +20,39 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [dueDate, setDueDate] = useState("");
   const [authorUserId, setAuthorUserId] = useState("");
   const [assignedUserId, setAssignedUserId] = useState("");
-  const [projectId, setProjectId] = useState("");
+  const [projectIdInput, setProjectIdInput] = useState("");
 
   const handleSubmit = async () => {
+
+    // const actualProjectId = projectId !== null ? projectId : projectIdInput;
+    const actualProjectId = projectId ?? projectIdInput;
+
     console.log("handleSubmit called with values:", {
-    title,
-    description,
-    status,
-    priority,
-    tags,
-    startDate,
-    dueDate,
-    authorUserId,
-    assignedUserId,
-    projectId,
-    id,
-  });
+      title,
+      description,
+      status,
+      priority,
+      tags,
+      startDate,
+      dueDate,
+      authorUserId,
+      assignedUserId,
+      projectId,
+      projectIdInput,
+      actualProjectId,
+      isFormValid: isFormValid(),
+    });
+
     // if (!title || !authorUserId || !(id !== null || projectId)) return;
-    if (!title || !authorUserId || (id === null && !projectId)) return;
+    if (!title || !authorUserId || !actualProjectId) return;
 
     const formattedStartDate = startDate
-    ? formatISO(new Date(startDate), { representation: "complete" })
-    : undefined;
+      ? formatISO(new Date(startDate), { representation: "complete" })
+      : undefined;
 
-const formattedDueDate = dueDate
-    ? formatISO(new Date(dueDate), { representation: "complete" })
-    : undefined;
+    const formattedDueDate = dueDate
+      ? formatISO(new Date(dueDate), { representation: "complete" })
+      : undefined;
 
 
     await createTask({
@@ -58,13 +65,21 @@ const formattedDueDate = dueDate
       dueDate: formattedDueDate,
       authorUserId: parseInt(authorUserId),
       assignedUserId: parseInt(assignedUserId),
-      projectId: id !== null ? Number(id) : Number(projectId),
+      projectId: Number(actualProjectId),
     });
   };
 
   const isFormValid = () => {
-    const valid = !!(title && authorUserId && projectId && id === null);
-    console.log("isFormValid:", valid, { title, authorUserId, projectId, id });
+    const actualProjectId = projectId ?? projectIdInput;
+    const valid = !!(title && authorUserId && actualProjectId);
+    // const valid = !!(title && authorUserId && projectId && id === null);
+    console.log("isFormValid:", valid, { 
+      title, 
+      authorUserId, 
+      projectId, //from prop
+      projectIdInput, //from user input
+      actualProjectId, // (resolved projectId to actually use) "Use the projectId from props if it exists, otherwise use what the user typed."
+    });
     return valid;
     // return title && authorUserId && !(id !== null || projectId);
     // return !!(title && authorUserId && projectId && id === null);
@@ -163,13 +178,13 @@ const formattedDueDate = dueDate
           value={assignedUserId}
           onChange={(e) => setAssignedUserId(e.target.value)}
         />
-        {id === null && (
+        {projectId === null && (
           <input
             type="text"
             className={inputStyles}
             placeholder="ProjectId"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+            value={projectIdInput}
+            onChange={(e) => setProjectIdInput(e.target.value)}
           />
         )}
         <button
