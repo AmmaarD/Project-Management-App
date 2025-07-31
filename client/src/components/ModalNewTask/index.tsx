@@ -23,7 +23,8 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [projectId, setProjectId] = useState("");
 
   const handleSubmit = async () => {
-    if (!title || !authorUserId || !(id !== null || projectId)) return;
+    // if (!title || !authorUserId || !(id !== null || projectId)) return;
+    if (!title || !authorUserId || (id === null && !projectId)) return;
 
     const formattedStartDate = startDate
     ? formatISO(new Date(startDate), { representation: "complete" })
@@ -49,7 +50,8 @@ const formattedDueDate = dueDate
   };
 
   const isFormValid = () => {
-    return title && authorUserId && !(id !== null || projectId);
+    // return title && authorUserId && !(id !== null || projectId);
+    return !!(title && authorUserId && projectId && id === null);
   };
 
   const selectStyles =
