@@ -61,6 +61,8 @@ export const createTask = async (
     console.log("Creating task with:", req.body);
     res.status(201).json(newTask);
   } catch (error : any) {
+    console.error("Error creating task with:", JSON.stringify(req.body, null, 2));
+    console.error("Full error:", error);
     console.log("Error Creating task with:", req.body);
     res
     .status(500)
