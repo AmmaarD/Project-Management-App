@@ -54,6 +54,18 @@ const ModalNewTask = ({ isOpen, onClose, projectId = null }: Props) => {
       ? formatISO(new Date(dueDate), { representation: "complete" })
       : undefined;
 
+    console.log("Sending task payload:", {
+      title,
+      description,
+      status,
+      priority,
+      tags,
+      startDate: formattedStartDate,
+      dueDate: formattedDueDate,
+      authorUserId: parseInt(authorUserId),
+      assignedUserId: assignedUserId ? parseInt(assignedUserId) : undefined,
+      projectId: Number(actualProjectId),
+    });
 
     await createTask({
       title,
