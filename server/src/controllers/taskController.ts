@@ -43,6 +43,8 @@ export const createTask = async (
     assignedUserId,
   } = req.body ?? {};
   try {
+    const { id, title, description, status, priority, tags, startDate, dueDate, points, projectId, authorUserId, assignedUserId } = req.body ?? {};
+    console.log("Received id in request body when creating task: ", id);
     const newTask = await prisma.task.create({
       data: {
         title,
