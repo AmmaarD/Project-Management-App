@@ -3,6 +3,12 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+async function fixTaskIdSequence() {
+  await prisma.$queryRawUnsafe(`
+    SELECT setval(pg_get_serial_sequence('\"Task\"', 'id'), COALESCE(MAX(id), 1)) FROM \"Task\";
+  `);
+}
+
 export const getTasks = async (req: Request, res: Response): Promise<void> => {
   const {projectId} = req.query;
   try {
@@ -29,22 +35,26 @@ export const createTask = async (
   req: Request, 
   res: Response
 ): Promise<void> => {
-  const {
-    title,
-    description,
-    status,
-    priority,
-    tags,
-    startDate,
-    dueDate,
-    points,
-    projectId,
-    authorUserId,
-    assignedUserId,
-  } = req.body ?? {};
+  // const {
+  //   title,
+  //   description,
+  //   status,
+  //   priority,
+  //   tags,
+  //   startDate,
+  //   dueDate,
+  //   points,
+  //   projectId,
+  //   authorUserId,
+  //   assignedUserId,
+  // } = req.body ?? {};
+  const { id, title, description, status, priority, tags, startDate, dueDate, points, projectId, authorUserId, assignedUserId } = req.body ?? {};
+
   try {
-    const { id, title, description, status, priority, tags, startDate, dueDate, points, projectId, authorUserId, assignedUserId } = req.body ?? {};
     console.log("Received id in request body when creating task: ", id);
+    
+    await fixTaskIdSequence();
+
     const newTask = await prisma.task.create({
       data: {
         title,
