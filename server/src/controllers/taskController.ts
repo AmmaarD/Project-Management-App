@@ -58,8 +58,10 @@ export const createTask = async (
         assignedUserId,
       },
     });
+    console.log("Creating task with:", req.body);
     res.status(201).json(newTask);
   } catch (error : any) {
+    console.log("Error Creating task with:", req.body);
     res
     .status(500)
     .json({ message: `Error creating a task: ${error.message}` });
